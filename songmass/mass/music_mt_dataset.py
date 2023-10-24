@@ -146,15 +146,15 @@ class MusicMtDataset(FairseqDataset):
         if len(samples) == 0:
             return {}
 
-        def merge(key, left_pad, move_eos_to_beginning=False):
-            return data_utils.collate_tokens(
-                [s[key] for s in samples],
-                pad_idx, eos_idx, left_pad, move_eos_to_beginning,
-            )
-
-        def merge_sentId(key, left_pad, pad_idx=pad_idx):
-            return data_utils.collate_tokens(
-                [s[key] for s in samples],
+        def merge(key, left_pad, move_eos_to_beginning=False):               # example:  samples = [
+            return data_utils.collate_tokens(                                #                {'tokens': [1, 2, 3], 'left_pad': True, 'move_eos_to_beginning': False, 'pad_idx': 0, 'eos_idx': 2},
+                [s[key] for s in samples],                                   #                {'tokens': [4, 5], 'left_pad': True, 'move_eos_to_beginning': False, 'pad_idx': 0, 'eos_idx': 2},
+                pad_idx, eos_idx, left_pad, move_eos_to_beginning,           #                {'tokens': [6, 7, 8, 9], 'left_pad': True, 'move_eos_to_beginning': False, 'pad_idx': 0, 'eos_idx': 2},
+            )                                                                #                ]
+                                                                             ## Merge the 'tokens' key
+        def merge_sentId(key, left_pad, pad_idx=pad_idx):                    #  merged_tokens = merge('tokens', True)
+            return data_utils.collate_tokens(                                #  # Output: tensor([[0, 1, 2, 3], [0, 0, 4, 5], [6, 7, 8, 9]])
+                [s[key] for s in samples],                                   #  
                 pad_idx, eos_idx, left_pad,
             )
 
