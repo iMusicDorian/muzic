@@ -61,10 +61,11 @@ class MusicMtDataset(FairseqDataset):
         sentences = []
         for i in range(len(sep_positions)-1):
             sentences.append(src_list[sep_positions[i]+1:sep_positions[i+1]])
-
-        source = []                      # [I like [align] apple pie [sep] I donnot know [align] why]
-        source_sent_ids = []             # [0   0    0       0    0    0   1    1     1     1     1 ]
-        source_word_ids = []             # [0   0            1    1    1   2    2     2           3 ]
+            
+                                         # [[I like [align] apple pie [sep]], [I donnot know [align] why [sep]]]
+        source = []                      # [ I like         apple pie [sep]    I donnot know         why [sep]  [eos]]
+        source_sent_ids = []             # [ 0   0            0    0    0      1    1     1           1     1     -1]
+        source_word_ids = []             # [ 0   0            1    1    1      2    2     2           3     3      3]
         word_idx = 0
         for i, s in enumerate(sentences):
             for t in s:
@@ -88,7 +89,7 @@ class MusicMtDataset(FairseqDataset):
         assert len(source) == len(source_word_ids)
 
         # For Target
-        sep_positions = [i for i, x in enumerate(tgt_list) if x == self.sep_token]
+        sep_positions = [i for i, x in enumerate(tgt_list) if x == self.sep_token]    # [-1, 5, 11]
         sep_positions.insert(0, -1)
         sentences = []
         for i in range(len(sep_positions) - 1):
