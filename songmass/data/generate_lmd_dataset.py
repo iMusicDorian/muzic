@@ -59,6 +59,21 @@ def tones_to_scales(tones):
         for tone in base_tones
     }
 
+  # initinalize the counts table (a dict of dicts) like:
+  # C     {'major': 0, 'natural_minor': 0, 'harmonic_minor': 0, 'melodic_minor': 0}
+  # C#    {'major': 0, 'natural_minor': 0, 'harmonic_minor': 0, 'melodic_minor': 0}
+  # D     {'major': 0, 'natural_minor': 0, 'harmonic_minor': 0, 'melodic_minor': 0}
+  # D#    {'major': 0, 'natural_minor': 0, 'harmonic_minor': 0, 'melodic_minor': 0}
+  # E     {'major': 0, 'natural_minor': 0, 'harmonic_minor': 0, 'melodic_minor': 0}
+  # F     {'major': 0, 'natural_minor': 0, 'harmonic_minor': 0, 'melodic_minor': 0}
+  # F#    {'major': 0, 'natural_minor': 0, 'harmonic_minor': 0, 'melodic_minor': 0}
+  # G     {'major': 0, 'natural_minor': 0, 'harmonic_minor': 0, 'melodic_minor': 0}
+  # G#    {'major': 0, 'natural_minor': 0, 'harmonic_minor': 0, 'melodic_minor': 0}
+  # A     {'major': 0, 'natural_minor': 0, 'harmonic_minor': 0, 'melodic_minor': 0}
+  # A#    {'major': 0, 'natural_minor': 0, 'harmonic_minor': 0, 'melodic_minor': 0}
+  # B     {'major': 0, 'natural_minor': 0, 'harmonic_minor': 0, 'melodic_minor': 0}
+
+
     if not tones:
         return None
     
@@ -68,6 +83,9 @@ def tones_to_scales(tones):
                 if (cur_tone_value - base_tone_value) % 12 in scale_notes:
                     counts[base_tone_name][scale_name] += 1
 
+    # check if current note's pitch is possible in any of scales in each base tone, if it is, add one count into this scale of the base tone.
+
+  
     frequency = {}
     for base_tone in counts:
         frequency[base_tone] = {}
@@ -75,18 +93,21 @@ def tones_to_scales(tones):
             frequency[base_tone][scale_label] = counts[base_tone][scale_label] / len(tones)
     return frequency
 
+    # transform the count number into probability(frequency)
+
+
 
 def maximum_likelihood_scale(tones):
-    statistic_scales = tones_to_scales(tones)
+    statistic_scales = tones_to_scales(tones)                 # first calculate the frequency of each scale in each tone
     a = []
     for base_tone in statistic_scales:
         for scale_label in statistic_scales[base_tone]:
             a.append((base_tone, scale_label, statistic_scales[base_tone][scale_label]))
-    a.sort(key=lambda v: v[2], reverse=True)
-    return a[0][0], a[0][1], a[0][2]
+    a.sort(key=lambda v: v[2], reverse=True)                  # sort the frequency from biggest to smallest
+    return a[0][0], a[0][1], a[0][2]                          # return the most possible scale of the base tone
 
 
-def normalize_song(tones):
+def normalize_song(tones):                                    # change all the tone back to the C major base tone
     base_tone, scale_type, scale_score = maximum_likelihood_scale([t for t in tones if t != REST_NOTE])
 
     if 'major' in scale_type:
@@ -99,7 +120,7 @@ def normalize_song(tones):
 
     most_common_octave = Counter([t // 12 for t in tones]).most_common(1)[0][0]
     offset = 12 * (most_common_octave - 5)
-
+ 
     tones = [t - offset if t != REST_NOTE else REST_NOTE for t in tones]
     return tones
 
